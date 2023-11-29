@@ -14,9 +14,10 @@ Este representa uma rede social esportiva. Consiste uma aplicação Java que rea
 - <b>Linguagem:</b> Java 17
    - Maven 3.9.3
       - OJDBC 11: Driver para conexão com bancos Oracle
+      - MongoDB Sync 4.11.1
       - Lombok: Torna o Java menos verboso
 - <b>IDE:</b> Apache Netbeans IDE 19
-- <b>Banco de Dados:</b> Oracle
+- <b>Banco de Dados:</b> MongoDB
 
 ## Como rodar o projeto
 1. Clone este repositório em seu computador.
@@ -26,7 +27,7 @@ Este representa uma rede social esportiva. Consiste uma aplicação Java que rea
    git clone https://github.com/bruno-remeikis/rede-social-esportiva.git
    ```
 
-2. Tenha um banco de dados Oracle criado. Rode o script [sql/sql_bancodedados.sql](sql) em seu banco.
+2. Tenha o programa MongoDB Compass instalado e rodando em sua maquina.
 
 3. Construa, compile e execute o projeto.
 
@@ -45,20 +46,26 @@ Este representa uma rede social esportiva. Consiste uma aplicação Java que rea
 <a id="ancora-config-conexao-bd"></a>
 
 ### Configurar Conexão com Banco de Dados
-Para configurar seus dados de conexão, basta alterar as Strings definidas no início da classe [OracleConnector.java](rede-social-esportiva-java/src/main/java/com/faesa/app/connection/OracleConnector.java).
+Para configurar seus dados de conexão, basta alterar as Strings de conexão definidas [MongoConnection.java](rede-social-esportiva-java/src/main/java/com/faesa/app/connection/MongoConnection.java).
 
 ```java
 ...
 
-public class OracleConnector
-{
-    private static final String
-        USER = "system",
-        PASSWORD = "oracle",
-        HOST = "localhost",
-        PORT = "1521",
-        SID = "XE",
-        URL = "jdbc:oracle:thin:@" + HOST + ':' + PORT + ':' + SID;
+static {
+   try {
+
+      MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017/");
+      MongoDatabase database = mongoClient.getDatabase("test");
+      
+      System.out.println("Conexão Efetuada!");
+      //client = mongoClient;
+      connection = database;
+      
+   } catch(Exception e) {
+      System.out.println("Erro de Conexão: "+ e.getMessage());
+      e.printStackTrace();
+   }
+}
         
 ...
 ```
@@ -68,11 +75,11 @@ Os principais diretórios do repositório estão dispostos da seguinte forma:
 
 - [diagrams](diagrams): Contém os diagramas Relacional (lógico) e de Entidade e Relacionamento do sistema.
 
-- [sql](sql): Contém os scripts para criação das tabelas e inserção de dados fictícios para testes do sistema.
-
-- [videos](videos): Contém o(s) vídeo(s) de demonstração da aplicação.
+- [sql](sql): Contém os scripts para criação das tabelas e inserção de dados fictícios para testes do sistema em bancos de dados Oracle.
 
    - Certifique-se de que o usuário do banco possui todos os privilégios antes de executar os scripts de criação. Caso ocorra erro, execute o comando `GRANT ALL PRIVILEGES TO <NOME_DO_BANCO>;` com o superusuário em seu ambiende de banco de dados, substituindo o trecho `<NOME_DO_BANCO>` pelo nome do seu banco (provavelmente `XE`).
+
+- [videos](videos): Contém o(s) vídeo(s) de demonstração da aplicação.
 
 - [rede-social-esportiva-java](rede-social-esportiva-java): Este diretório contem à aplicação Java.
    
@@ -88,7 +95,7 @@ Os principais diretórios do repositório estão dispostos da seguinte forma:
 
          - &#60;Entidade&#62;DAO: Interfaces que contém os cabeçalhos dos métodos das classes DAO não abstratas. <b>Exemplo:</b> [EsporteDAO.java](rede-social-esportiva-java/src/main/java/com/faesa/app/dao/EsporteDAO.java).
 
-         - &#60;Entidade&#62;DAOOracle: Classes que extendem de [DAO](rede-social-esportiva-java/src/main/java/com/faesa/app/dao/DAO.java) e implementam &#60;Entidade&#62;DAO, definindo o corpo dos métodos de sua interface. Estas são as que, de fato, possuem os códigos SQL da aplicação, bem como o tratamento de entrada e saída de dados do banco de dados. <b>Exemplo:</b> [EsporteDAOOracle.java](rede-social-esportiva-java/src/main/java/com/faesa/app/dao/EsporteDAOOracle.java).
+         - &#60;Entidade&#62;DAOOracle: Classes que extendem de [DAO](rede-social-esportiva-java/src/main/java/com/faesa/app/dao/DAO.java) e implementam &#60;Entidade&#62;DAO, definindo o corpo dos métodos de sua interface. Estas são as que, de fato, possuem os códigos SQL/NoSQL da aplicação, bem como o tratamento de entrada e saída de dados do banco de dados. <b>Exemplo:</b> [EsporteDAOMongo.java](rede-social-esportiva-java/src/main/java/com/faesa/app/dao/EsporteDAOMongo.java).
 
       - [model](rede-social-esportiva-java/src/main/java/com/faesa/app/model): Nesse diretório encontram-ser as classes das entidades descritas nos [diagramas](diagrams).
 
